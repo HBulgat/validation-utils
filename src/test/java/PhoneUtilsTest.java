@@ -1,4 +1,4 @@
-import com.bulgat.validation.PhoneUtils;
+import com.bulgat.validation.phone.PhoneUtils;
 import org.junit.Test;
 
 
@@ -14,7 +14,7 @@ public class PhoneUtilsTest {
                 "15929985622","13763991981","18798760984","+8618798760984"
         };
         for (String phone : phones) {
-            System.out.println("phone="+phone+",validation="+PhoneUtils.validChineseMobilePhone(phone));
+            System.out.println("phone="+phone+",validation="+PhoneUtils.validateChineseMobilePhone(phone));
         }
     }
 
@@ -26,7 +26,7 @@ public class PhoneUtilsTest {
                 "0351-7654321"
         };
         for (String phone : phones) {
-            System.out.println("phone="+phone+",validation="+PhoneUtils.validChineseFixedPhone(phone));
+            System.out.println("phone="+phone+",validation="+PhoneUtils.validateChineseFixedPhone(phone));
         }
     }
 }

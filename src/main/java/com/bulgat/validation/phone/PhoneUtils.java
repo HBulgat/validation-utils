@@ -1,4 +1,4 @@
-package com.bulgat.validation;
+package com.bulgat.validation.phone;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -28,7 +28,7 @@ public class PhoneUtils {
      * @params: [phone]
      * @return: boolean
      **/
-    public static boolean validChineseMobilePhone(String phone) {
+    public static boolean validateChineseMobilePhone(String phone) {
 //        1. 先判空
         if(StringUtils.isBlank(phone)){
             return false;
@@ -53,7 +53,7 @@ public class PhoneUtils {
      * @params: [phone]
      * @return: boolean
      **/
-    public static boolean validChineseFixedPhone(String phone) {
+    public static boolean validateChineseFixedPhone(String phone) {
 //        1. 先判空
         if(StringUtils.isBlank(phone)){
             return false;
