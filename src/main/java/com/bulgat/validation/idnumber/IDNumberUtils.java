@@ -17,6 +17,7 @@ import java.util.*;
  */
 public class IDNumberUtils {
 
+    private static final String CHINA_ADDRESS_CODE_FILE_NAME = "ChinaAddressCode.txt";
     // 18位身份证号码加权因子
     private static final int[] CHINESE_ID_NUMBER_WEIGHT_FACTORS_18 = {7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2};
     // 18位身份证号码校验码对应表
@@ -39,7 +40,7 @@ public class IDNumberUtils {
 
     private static void initChinaAddressCode6WordTree() throws IOException {
         if (CHINA_ADDRESS_CODE_6_WORD_TREE.isEmpty()){
-            ReadChinaAddressCodeTableUtil.readChinaAddressCodeToWordTree(CHINA_ADDRESS_CODE_6_WORD_TREE);
+            readChinaAddressCodeToWordTree(CHINA_ADDRESS_CODE_6_WORD_TREE);
         }
     }
 
@@ -133,6 +134,15 @@ public class IDNumberUtils {
         }
         String match = CHINA_ADDRESS_CODE_6_WORD_TREE.match(addressCode);
         return addressCode.equals(match);
+    }
+
+    private static synchronized void readChinaAddressCodeToWordTree(WordTree wordTree) throws IOException {
+        InputStream in = IDNumberUtils.class.getClassLoader().getResourceAsStream(CHINA_ADDRESS_CODE_FILE_NAME);
+        BufferedReader bufferedReader=new BufferedReader(new InputStreamReader(in));
+        String line;
+        while ((line=bufferedReader.readLine())!=null){
+            if (!StringUtils.isBlank(line)) wordTree.addWord(line.trim());
+        }
     }
 
     /**
@@ -275,19 +285,3 @@ public class IDNumberUtils {
 
 }
 
-/**
- * @author: Bulgat
- * @createTime: 2024-12-20 21:25
- * @description:
- */
-class ReadChinaAddressCodeTableUtil {
-    private static final String CHINA_ADDRESS_CODE_FILE_NAME = "ChinaAddressCode.txt";
-    public static synchronized void readChinaAddressCodeToWordTree(WordTree wordTree) throws IOException {
-        InputStream in = ReadChinaAddressCodeTableUtil.class.getClassLoader().getResourceAsStream(CHINA_ADDRESS_CODE_FILE_NAME);
-        BufferedReader bufferedReader=new BufferedReader(new InputStreamReader(in));
-        String line;
-        while ((line=bufferedReader.readLine())!=null){
-            if (!StringUtils.isBlank(line)) wordTree.addWord(line.trim());
-        }
-    }
-}

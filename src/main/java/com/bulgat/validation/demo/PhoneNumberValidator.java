@@ -1,4 +1,4 @@
-package com.bulgat.validation.test;
+package com.bulgat.validation.demo;
 
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;  
