@@ -2,18 +2,12 @@ package com.bulgat.validation.date;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.Date;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.Scanner;
 
 /**
  * @author: Bulgat
  * @createTime: 2024-12-20 16:24
- * @description: 日期校验接口
+ * @description: 日期校验工具
  */
 public class DateUtils {
 
@@ -34,13 +28,5 @@ public class DateUtils {
             e.printStackTrace();
             return null;
         }
-    }
-
-    public static void main(String[] args) {
-        Scanner scanner=new Scanner(System.in);
-        String dateStr=scanner.next();
-        Date date = getDate(dateStr, "yyyyMMdd");
-        System.out.println(date);
-        scanner.close();
     }
 }
