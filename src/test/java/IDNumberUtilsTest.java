@@ -1,3 +1,4 @@
+import com.bulgat.validation.idnumber.IDNumberUtils;
 import org.junit.Test;
 
 import java.text.ParseException;
@@ -27,5 +28,16 @@ public class IDNumberUtilsTest {
         int month = calendar.get(Calendar.MONTH) + 1;
         int day = calendar.get(Calendar.DAY_OF_MONTH);
         System.out.println(year+","+month+","+day);
+    }
+
+    @Test
+    public void testIDNumberUtils(){
+        String[] ids=new String[]{
+                "36078"
+        };
+        for (String id : ids) {
+            System.out.println("精确校验：  "+IDNumberUtils.validateChineseIDNumber18(id, true));
+//            System.out.println("不精确校验："+IDNumberUtils.validateChineseIDNumber18(id));
+        }
     }
 }

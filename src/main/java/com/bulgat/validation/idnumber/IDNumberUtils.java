@@ -1,16 +1,19 @@
 package com.bulgat.validation.idnumber;
 
+import cn.hutool.dfa.WordTree;
 import com.bulgat.validation.date.DateUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.*;
 
 /**
  * @author: Bulgat
  * @createTime: 2024-12-20 15:34
- * @description: 校验身份号码
+ * @description: 校验身份ID
  */
 public class IDNumberUtils {
 
@@ -18,7 +21,6 @@ public class IDNumberUtils {
     private static final int[] CHINESE_ID_NUMBER_WEIGHT_FACTORS_18 = {7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2};
     // 18位身份证号码校验码对应表
     private static final Map<Integer, String> CHINESE_ID_NUMBER_VERIFICATION_CODE_MAP_18 = new HashMap<>();
-
     static {
         CHINESE_ID_NUMBER_VERIFICATION_CODE_MAP_18.put(0, "1");
         CHINESE_ID_NUMBER_VERIFICATION_CODE_MAP_18.put(1, "0");
@@ -32,9 +34,17 @@ public class IDNumberUtils {
         CHINESE_ID_NUMBER_VERIFICATION_CODE_MAP_18.put(9, "3");
         CHINESE_ID_NUMBER_VERIFICATION_CODE_MAP_18.put(10, "2");
     }
+    // 6位地址码集合
+    private static final WordTree CHINA_ADDRESS_CODE_6_WORD_TREE=new WordTree();
+
+    private static void initChinaAddressCode6WordTree() throws IOException {
+        if (CHINA_ADDRESS_CODE_6_WORD_TREE.isEmpty()){
+            ReadChinaAddressCodeTableUtil.readChinaAddressCodeToWordTree(CHINA_ADDRESS_CODE_6_WORD_TREE);
+        }
+    }
 
     /**
-     * @description: 校验国内身份证号码（18位）
+     * @description: 默认校验国内身份证号码（18位）（默认精确校验）
      * @author: Bulgat
      * @date: 2024/12/20 15:36
      * @params: [chineseIDNumber]
@@ -42,7 +52,19 @@ public class IDNumberUtils {
      * 参考： https://baike.baidu.com/item/%E5%85%AC%E6%B0%91%E8%BA%AB%E4%BB%BD%E5%8F%B7%E7%A0%81/11042821
      **/
     public static boolean validateChineseIDNumber18(String chineseIDNumber){
-        //        1. 先判空
+        return validateChineseIDNumber18(chineseIDNumber,true);
+    }
+
+    /**
+     * @description: 校验国内身份证号码（18位）
+     * @author: Bulgat
+     * @date: 2024/12/20 15:36
+     * @params: [chineseIDNumber,needPreciseVerification]
+     * @return: boolean
+     * 参考： https://baike.baidu.com/item/%E5%85%AC%E6%B0%91%E8%BA%AB%E4%BB%BD%E5%8F%B7%E7%A0%81/11042821
+     **/
+    public static boolean validateChineseIDNumber18(String chineseIDNumber,boolean needPreciseVerification){
+        // 1. 先判空
         if(StringUtils.isBlank(chineseIDNumber)){
             return false;
         }
@@ -52,7 +74,7 @@ public class IDNumberUtils {
             return false;
         }
         // 3.验证地址码（前6位）
-        if (!validateChineseAddressCode(chineseIDNumber.substring(0, 6))) {
+        if (!validateChineseAddressCode(chineseIDNumber.substring(0, 6),needPreciseVerification)) {
             return false;
         }
         //4. 校验生日
@@ -66,6 +88,7 @@ public class IDNumberUtils {
         return true;
     }
 
+
     /**
      * @description: 校验地址码是否符合规则
      * @author: Bulgat
@@ -73,7 +96,7 @@ public class IDNumberUtils {
      * @params: [addressCode]
      * @return: boolean
      **/
-    private static boolean validateChineseAddressCode(String addressCode) {
+    private static boolean validateChineseAddressCode(String addressCode,boolean needPreciseVerification) {
         if (addressCode == null || addressCode.length()!= 6) {
             return false;
         }
@@ -92,7 +115,24 @@ public class IDNumberUtils {
         if (!validateCityCode(cityCode)) {
             return false;
         }
-        return validateCountyCode(countyCode);
+        if (!validateCountyCode(countyCode)){
+            return false;
+        }
+        if (!needPreciseVerification){
+            return true;
+        }
+        return preciseValidateAddressCode(addressCode);
+    }
+
+    private static boolean preciseValidateAddressCode(String addressCode) {
+        try {
+            initChinaAddressCode6WordTree();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        String match = CHINA_ADDRESS_CODE_6_WORD_TREE.match(addressCode);
+        return addressCode.equals(match);
     }
 
     /**
@@ -202,7 +242,14 @@ public class IDNumberUtils {
         if (birthDate==null){
             return false;
         }
-        //3.判断是不是在现在之后的日期
+        //3.判断是不是1800年之后
+        Calendar calendar=Calendar.getInstance();
+        calendar.setTime(birthDate);
+        int birthYear = calendar.get(Calendar.YEAR);
+        if (birthYear<1800){
+            return false;
+        }
+        //4.判断是不是在现在之后的日期
         Date nowDate=new Date();
         if (!birthDate.before(nowDate)){
             return false;
@@ -224,5 +271,23 @@ public class IDNumberUtils {
         }
         int remainder = sum % 11;
         return CHINESE_ID_NUMBER_VERIFICATION_CODE_MAP_18.get(remainder).equals(chineseIDNumber.substring(17));
+    }
+
+}
+
+/**
+ * @author: Bulgat
+ * @createTime: 2024-12-20 21:25
+ * @description:
+ */
+class ReadChinaAddressCodeTableUtil {
+    private static final String CHINA_ADDRESS_CODE_FILE_NAME = "ChinaAddressCode.txt";
+    public static synchronized void readChinaAddressCodeToWordTree(WordTree wordTree) throws IOException {
+        InputStream in = ReadChinaAddressCodeTableUtil.class.getClassLoader().getResourceAsStream(CHINA_ADDRESS_CODE_FILE_NAME);
+        BufferedReader bufferedReader=new BufferedReader(new InputStreamReader(in));
+        String line;
+        while ((line=bufferedReader.readLine())!=null){
+            if (!StringUtils.isBlank(line)) wordTree.addWord(line.trim());
+        }
     }
 }
