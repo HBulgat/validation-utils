@@ -19,7 +19,6 @@ public class IDNumberUtils {
     // 18位身份证号码校验码对应表
     private static final Map<Integer, String> CHINESE_ID_NUMBER_VERIFICATION_CODE_MAP_18 = new HashMap<>();
 
-
     static {
         CHINESE_ID_NUMBER_VERIFICATION_CODE_MAP_18.put(0, "1");
         CHINESE_ID_NUMBER_VERIFICATION_CODE_MAP_18.put(1, "0");
@@ -67,6 +66,13 @@ public class IDNumberUtils {
         return true;
     }
 
+    /**
+     * @description: 校验地址码是否符合规则
+     * @author: Bulgat
+     * @date: 2024/12/20 17:19
+     * @params: [addressCode]
+     * @return: boolean
+     **/
     private static boolean validateChineseAddressCode(String addressCode) {
         if (addressCode == null || addressCode.length()!= 6) {
             return false;
@@ -89,7 +95,13 @@ public class IDNumberUtils {
         return validateCountyCode(countyCode);
     }
 
-    // 校验国内区域代码是否合法
+    /**
+     * @description: 校验国内区域代码是否合法
+     * @author: Bulgat
+     * @date: 2024/12/20 17:19
+     * @params: [regionCode]
+     * @return: boolean
+     **/
     private static boolean validateRegionCode(String regionCode) {
         if (regionCode == null || regionCode.length()!= 1) {
             return false;
@@ -98,7 +110,13 @@ public class IDNumberUtils {
         return code >= 1 && code <= 6;
     }
 
-    // 校验省（直辖市，自治区，特别行政区）代码是否合法，基于给定的各区域范围
+    /**
+     * @description: 校验省（直辖市，自治区，特别行政区）代码是否合法
+     * @author: Bulgat
+     * @date: 2024/12/20 17:18
+     * @params: [regionCode, provinceCode]
+     * @return: boolean
+     **/
     private static boolean validateProvinceCode(String regionCode, String provinceCode) {
         if (provinceCode == null || provinceCode.length()!= 2) {
             return false;
@@ -125,7 +143,13 @@ public class IDNumberUtils {
         }
     }
 
-    // 校验城市代码是否合法（简单校验格式以及针对直辖市的特殊情况判断逻辑初步校验）
+    /***
+     * @description: 校验城市代码是否合法（简单校验格式以及针对直辖市的特殊情况判断逻辑初步校验）
+     * @author: Bulgat
+     * @date: 2024/12/20 17:18
+     * @params: [cityCode]
+     * @return: boolean
+     **/
     private static boolean validateCityCode(String cityCode) {
         if (cityCode == null || cityCode.length()!= 2) {
             return false;
@@ -138,7 +162,13 @@ public class IDNumberUtils {
         }
     }
 
-    // 校验区县代码是否合法（包含各种不同类型区县指代的逻辑校验）
+    /**
+     * @description: 校验区县代码是否合法（包含各种不同类型区县指代的逻辑校验）
+     * @author: Bulgat
+     * @date: 2024/12/20 17:18
+     * @params: [countyCode]
+     * @return: boolean
+     **/
     private static boolean validateCountyCode(String countyCode) {
         if (countyCode == null || countyCode.length()!= 2) {
             return false;
